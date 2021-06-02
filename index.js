@@ -9,11 +9,11 @@ synctube.proxyfallback = class {
   proxyCheck(player) {
     let api = this.api;
     const url = player.url;
-    const proxyUrl = `/proxy?url=${encodeURI(url)}`;
+    const proxyUrl = `/proxy_video?url=${encodeURI(url)}`;
     // proxyUrl = `${this.path}/test.mp4`;
 
     // If we are already proxying then this will not help
-    if (url.includes("/proxy?url=")) return;
+    if (url.includes("/proxy_video?url=")) return;
 
     const localIp = api.getLocalIp();
     const globalIp = api.getGlobalIp();

@@ -1,0 +1,4 @@
+Flask
+cachetools
+click<8.0.0
+git+https://github.com/ekrekeler/anime-downloader.git@master#egg=anime-downloader[selescrape]
