@@ -31,7 +31,7 @@ docker run -d --name="video-proxy" -v video-cache:/proxy-cache -p 8080:8080 \
 
 Now there should be a button in synctube that can search for (anime) videos and queue them into the player.
 
-**Some notes about the setup**:
+## Notes
 - While the nginx proxy isn't required, it comes in handy when video links are IP-restricted. It also has a caching feature to save on bandwidth when multiple users are requesting the same video through it. It is configured to check against the video-proxy container to ensure only previously retrieved URLs can be proxied through it.
 - Ideally the SyncTube server should have a decent network uplink speed to support the number of streams you plan to proxy. Usually, running this on a dedicated VPS to proxy 1080p video to multiple viewers isn't an issue.
 - Currently I am using [traefik](https://doc.traefik.io/traefik/) to proxy reqests to the Synctube server and the nginx server with the same domain name based on URL rules. The nginx server can be configured to do the same thing with a custom configuration file. See "Complex configuration" in the [documentation for the nginx image](https://hub.docker.com/_/nginx).
