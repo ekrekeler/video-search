@@ -11,22 +11,15 @@ Video search plugin for [SyncTube](https://github.com/RblSb/SyncTube)
 const JsApi = client.JsApi;
 JsApi.addPlugin('video-search');
 ```
-- Create `user/res/plugins/` folder
-- Open `plugins` folder in terminal: `cd user/res/plugins`
-- `git clone https://github.com/ekrekeler/video-search.git video-search`
-- Build the docker images:
-```
-cd video-search
-cd video_search && docker build -t video-search . && cd ..
-cd proxy && docker build -t video-proxy
-cd ../..
-```
+- Create `user/res/plugins/video-search` folder
+- Open folder in terminal: `cd user/res/plugins/video-search`
+- Download plugin: `curl -fsSLO https://raw.githubusercontent.com/ekrekeler/video-search/dev/index.js`
 - Start the containers:
 ```
-docker run -d --name="video-search" video-search
+docker run -d --name="video-search" ekrekeler/video-search
 docker run -d --name="video-proxy" -v video-cache:/proxy-cache -p 8080:8080 \
     -e "CACHE_SIZE=16g" -e "CACHE_AGE=1d" -e "SLICE_SIZE=1m" \
-    -e "AUTH_HOST=video-search" -e "AUTH_PORT=5000"
+    -e "AUTH_HOST=video-search" -e "AUTH_PORT=5000" ekrekeler/video-proxy
 ```
 
 Now there should be a button in synctube that can search for (anime) videos and queue them into the player.
