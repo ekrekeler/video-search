@@ -1,4 +1,4 @@
-# SyncTube-proxyfallback
+# video-search
 
 Video search plugin for [SyncTube](https://github.com/RblSb/SyncTube)
 
