@@ -9,10 +9,10 @@ Video search plugin for [SyncTube](https://github.com/RblSb/SyncTube)
 ```js
 'use strict';
 const JsApi = client.JsApi;
-JsApi.addPlugin('video-search');
+JsApi.addPlugin('videosearch');
 ```
-- Create `user/res/plugins/video-search` folder
-- Open folder in terminal: `cd user/res/plugins/video-search`
+- Create `user/res/plugins/videosearch` folder
+- Open folder in terminal: `cd user/res/plugins/videosearch`
 - Download plugin: `curl -fsSLO https://raw.githubusercontent.com/ekrekeler/video-search/dev/index.js`
 - Start the containers:
 ```

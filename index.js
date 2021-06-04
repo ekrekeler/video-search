@@ -1,4 +1,4 @@
-synctube.proxyfallback = class {
+synctube.videosearch = class {
 
   constructor(obj) {
     this.api = obj.api;
