@@ -1,4 +1,4 @@
 Flask
 cachetools
 click<8.0.0
-git+https://github.com/ekrekeler/anime-downloader.git@master#egg=anime-downloader[selescrape]
+git+https://github.com/ekrekeler/anime-downloader.git@dev-9anime#egg=anime-downloader[selescrape]

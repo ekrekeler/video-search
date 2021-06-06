@@ -40,7 +40,10 @@ def search():
         search = ANIME_SITE.search(title)
         search_data = {}
         for entry in search:
-            search_data[entry.title] = entry.url
+            search_data[entry.title] = {
+                'url': entry.url,
+                'poster': entry.poster,
+            }
         return search_data
 
     else:
