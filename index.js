@@ -4,13 +4,58 @@ synctube.videosearch = class {
     this.api = obj.api;
     this.apiPolyfill();
     this.api.notifyOnVideoChange(this.proxyCheck.bind(this));
+    this.addStyles(`${obj.path}/style.css`);
+    this.addOverlay();
+    this.addSearchButton();
   }
+
+  addOverlay() {
+    const searchoverlay = document.querySelector('.searchol');
+    if (searchoverlay) return;
+    const overlay = this.nodeFromString(`
+      <div id="searchol" class="overlay" style="display: none">
+        <span class="closebtn" title="Close Overlay">x</span>
+        <div class="overlay-content">
+          <form action="">
+            <input type="text" placeholder="Search..." name="search">
+            <button type="submit"><i class="fa fa-search"></i></button>
+          </form>
+        </div>
+      </div>
+    `);
+    const infobuttons = document.querySelector("#playlist"
+    ).querySelector('.info');
+    infobuttons.insertAdjacentElement('afterend', overlay);
+    const closebutton = document.querySelector('.closebtn');
+    closebutton.onclick = () => {
+      document.querySelector("#searchol").style.display = "none";
+    }
+  }
+
+  addSearchButton() {
+    const searchbutton = document.querySelector('#searchbutton');
+    if (searchbutton) return;
+    const button = this.nodeFromString(`
+      <button id="searchbutton" title="Search">
+       <ion-icon name="search"></ion-icon>
+      </button>
+    `);
+    button.onclick = () => {
+      const searchoverlay = document.querySelector('#searchol');
+      searchoverlay.style.display = "block";
+    }
+    const section = document.querySelector('#playlist');
+    const divinfo = section.querySelector('.info');
+    const controls = divinfo.querySelector('.controls');
+    controls.appendChild(button);
+  }
+
 
   proxyCheck(player) {
     let api = this.api;
     const url = player.url;
     const proxyUrl = `/proxy_video?url=${encodeURI(url)}`;
-    // proxyUrl = `${this.path}/test.mp4`;
+    //proxyUrl = `${this.path}/test.mp4`;
 
     // If we are already proxying then this will not help
     if (url.includes("/proxy_video?url=")) return;
@@ -52,6 +97,20 @@ synctube.videosearch = class {
     if (host === '') host = 'localhost';
     if (!api.getLocalIp) api.getLocalIp = () => host;
     if (!api.getGlobalIp) api.getGlobalIp = () => host;
+  }
+
+  addStyles(cssUrl) {
+    const link = document.createElement('link');
+    link.href = cssUrl;
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
+
+  nodeFromString(div) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = div;
+    return wrapper.firstElementChild;
   }
 
 }
