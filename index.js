@@ -1,3 +1,7 @@
+const PROXYPATH = "/proxy_video";
+const SEARCHPATH = "/search";
+const GETEPPATH = "/get_video";
+
 synctube.videosearch = class {
 
   constructor(obj) {
@@ -5,6 +9,7 @@ synctube.videosearch = class {
     this.apiPolyfill();
     this.api.notifyOnVideoChange(this.proxyCheck.bind(this));
     this.addStyles(`${obj.path}/style.css`);
+    this.api.addScriptToHead("https://unpkg.com/axios/dist/axios.min.js")
     this.addOverlay();
     this.addSearchButton();
   }
@@ -16,10 +21,9 @@ synctube.videosearch = class {
       <div id="searchol" class="overlay" style="display: none">
         <span class="closebtn" title="Close Overlay">x</span>
         <div class="overlay-content">
-          <form action="">
-            <input type="text" placeholder="Search..." name="search">
-            <button type="submit"><i class="fa fa-search"></i></button>
-          </form>
+          <input id="searchinp" type="text" placeholder="Search..." name="search">
+          <button id="submitsrch" type="submit">
+            <i class="fa fa-search">Go!</i></button>
         </div>
       </div>
     `);
@@ -28,7 +32,11 @@ synctube.videosearch = class {
     infobuttons.insertAdjacentElement('afterend', overlay);
     const closebutton = document.querySelector('.closebtn');
     closebutton.onclick = () => {
-      document.querySelector("#searchol").style.display = "none";
+      this.hideSearch();
+    }
+    const submitbutton = document.querySelector("#submitsrch");
+    submitbutton.onclick = () => {
+      this.doSearch();
     }
   }
 
@@ -41,8 +49,7 @@ synctube.videosearch = class {
       </button>
     `);
     button.onclick = () => {
-      const searchoverlay = document.querySelector('#searchol');
-      searchoverlay.style.display = "block";
+      this.showSearch();
     }
     const section = document.querySelector('#playlist');
     const divinfo = section.querySelector('.info');
@@ -50,15 +57,38 @@ synctube.videosearch = class {
     controls.appendChild(button);
   }
 
+  showSearch() {
+    const searchoverlay = document.querySelector('#searchol');
+    searchoverlay.style.display = "block";
+  }
+
+  hideSearch() {
+    const searchoverlay = document.querySelector("#searchol");
+    searchoverlay.style.display = "none";
+  }
+
+  doSearch() {
+    const searchinput = document.querySelector("#searchinp");
+    if (!searchinput) return;
+    if (!searchinput.value) return;
+    axios.get(SEARCHPATH, {params: {
+      title: searchinput.value
+    }})
+    .then(function (response) {
+      console.log(response.data)
+      //TODO display these results
+    });
+  }
+
 
   proxyCheck(player) {
     let api = this.api;
     const url = player.url;
-    const proxyUrl = `/proxy_video?url=${encodeURI(url)}`;
+    const proxyUrl = `${PROXYPATH}?url=${encodeURI(url)}`;
     //proxyUrl = `${this.path}/test.mp4`;
 
     // If we are already proxying then this will not help
-    if (url.includes("/proxy_video?url=")) return;
+    if (url.includes(`${PROXYPATH}?`)) return;
 
     const localIp = api.getLocalIp();
     const globalIp = api.getGlobalIp();
