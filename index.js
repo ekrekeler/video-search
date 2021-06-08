@@ -1,15 +1,20 @@
 const PROXYPATH = "/proxy_video";
 const SEARCHPATH = "/search";
 const GETEPPATH = "/get_video";
+const AXIOSPATH = "https://unpkg.com/axios/dist/axios.min.js"
 
 synctube.videosearch = class {
 
   constructor(obj) {
     this.api = obj.api;
+    this.path = obj.path
     this.apiPolyfill();
     this.api.notifyOnVideoChange(this.proxyCheck.bind(this));
-    this.addStyles(`${obj.path}/style.css`);
-    this.api.addScriptToHead("https://unpkg.com/axios/dist/axios.min.js")
+    this.api.addScriptToHead(AXIOSPATH, () => this.init());
+  }
+
+  init() {
+    this.addStyles(`${this.path}/style.css`);
     this.addOverlay();
     this.addSearchButton();
   }
@@ -95,8 +100,8 @@ synctube.videosearch = class {
     // If the video fails when using same IP, then proxy will not help
     if (url.indexOf(globalIp) != -1) return;
 
+    // If proxy cannot fetch the video, then no point in changing the URL
     this.fetchStatus(proxyUrl, status => {
-      // If proxy cannot fetch the video, then no point in changing the URL
       if (status != 200) return;
     });
 
@@ -109,15 +114,15 @@ synctube.videosearch = class {
       api.setVideoSrc(proxyUrl);
       api.setTime(currentTime);
     });
-
   }
 
-  fetchStatus(address, callback) {
+  fetchStatus(url, callback) {
+    // XMLHttpRequest is required for use where axios isn't loaded yet
     const client = new XMLHttpRequest();
     client.onload = function () {
       callback(this.status);
     }
-    client.open('HEAD', address, true);
+    client.open('HEAD', url, true);
     client.send();
   }
 
