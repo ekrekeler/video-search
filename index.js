@@ -21,7 +21,7 @@ synctube.videosearch = class {
   }
 
   addOverlay() {
-    const searchoverlay = document.querySelector('.searchol');
+    const searchoverlay = document.querySelector("#searchol");
     if (searchoverlay) return;
     const overlay = this.nodeFromString(`
       <div id="searchol" class="overlay" style="display: none">
@@ -108,7 +108,7 @@ synctube.videosearch = class {
   }
 
   resetSearch() {
-    const searchoverlay = document.querySelector(".searchol");
+    const searchoverlay = document.querySelector("#searchol");
     const seldiv = searchoverlay.querySelector(".select");
     const sellist = seldiv.querySelector("ul");
     if (sellist) sellist.remove();
@@ -130,9 +130,16 @@ synctube.videosearch = class {
         const checked = epselect.querySelectorAll(":checked");
         const selected = [...checked].map(option => option.value);
         this.getEps(url, selected, (episodes) => {
-          selected.forEach((epNo) => {
-            this.queueEp(episodes[epNo]);
-          });
+          var epindex = 0;
+          const loopCallback = () => {
+            this.queueEp(episodes[selected[epindex]], () => {
+              epindex++;
+              if (epindex < selected.length) {
+                loopCallback();
+              };
+            });
+          };
+          loopCallback();
         });
       };
       for (var i=0; i<count; i++) {
@@ -153,8 +160,8 @@ synctube.videosearch = class {
     item.append(submitbtn);
   }
 
-  queueEp(episode) {
-    this.api.addVideoItem(episode.video, true, true);
+  queueEp(episode, callback) {
+    this.api.addVideoItem(episode.video, true, true, callback);
   }
 
   doSearch(title, callback) {
