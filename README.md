@@ -13,7 +13,11 @@ JsApi.addPlugin('videosearch');
 ```
 - Create `user/res/plugins/videosearch` folder
 - Open folder in terminal: `cd user/res/plugins/videosearch`
-- Download plugin: `curl -fsSLO https://raw.githubusercontent.com/ekrekeler/video-search/dev/index.js`
+- Download plugin:
+```
+curl -fsSLO https://raw.githubusercontent.com/ekrekeler/video-search/dev/index.js
+curl -fsSLO https://raw.githubusercontent.com/ekrekeler/video-search/dev/style.css
+```
 - Start the containers:
 ```
 docker run -d --name="video-search" ekrekeler/video-search
