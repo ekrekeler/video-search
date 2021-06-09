@@ -37,5 +37,5 @@ Currently only searches anime sites using [Anime Downloader](https://github.com/
 
 ## TODO:
 
- - Javascript to make the search work
+ - Make it look pretty. Right now it resembles the state of my room.
  - Provide a docker compose file example

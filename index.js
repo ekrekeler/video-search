@@ -1,13 +1,14 @@
 const PROXYPATH = "/proxy_video";
 const SEARCHPATH = "/search";
-const GETEPPATH = "/get_video";
-const AXIOSPATH = "https://unpkg.com/axios/dist/axios.min.js"
+const GETEPCOUNTPATH = "/get_epcount";
+const GETEPURLPATH = "/get_video";
+const AXIOSPATH = "https://unpkg.com/axios/dist/axios.min.js";
 
 synctube.videosearch = class {
 
   constructor(obj) {
     this.api = obj.api;
-    this.path = obj.path
+    this.path = obj.path;
     this.apiPolyfill();
     this.api.notifyOnVideoChange(this.proxyCheck.bind(this));
     this.api.addScriptToHead(AXIOSPATH, () => this.init());
@@ -26,10 +27,11 @@ synctube.videosearch = class {
       <div id="searchol" class="overlay" style="display: none">
         <span class="closebtn" title="Close Overlay">x</span>
         <div class="overlay-content">
-          <input id="searchinp" type="text" placeholder="Search..." name="search">
+          <input type="text" placeholder="Search..." name="search">
           <button id="submitsrch" type="submit">
             <i class="fa fa-search">Go!</i></button>
         </div>
+        <div class="select"></div>
       </div>
     `);
     const infobuttons = document.querySelector("#playlist"
@@ -41,7 +43,10 @@ synctube.videosearch = class {
     }
     const submitbutton = document.querySelector("#submitsrch");
     submitbutton.onclick = () => {
-      this.doSearch();
+      const searchinput = overlay.querySelector("input");
+      if (!searchinput) return;
+      if (!searchinput.value) return;
+      this.doSearch(searchinput.value, this.displaySel.bind(this));
     }
   }
 
@@ -72,16 +77,115 @@ synctube.videosearch = class {
     searchoverlay.style.display = "none";
   }
 
-  doSearch() {
-    const searchinput = document.querySelector("#searchinp");
-    if (!searchinput) return;
-    if (!searchinput.value) return;
+  displaySel(results) {
+    const seldiv = document.querySelector(".select");
+    const srchlist = seldiv.querySelector("ul");
+    var sellist;
+    if (srchlist) {
+      sellist = srchlist.cloneNode(false);
+      seldiv.replaceChild(sellist, srchlist);
+    } else {
+      sellist = document.createElement("ul");
+      sellist.style.display = "inline";
+      seldiv.append(sellist);
+    }
+    Object.keys(results).forEach((title) => {
+      const item = document.createElement("li");
+      item.style.width = "200px";
+      item.onclick = () => {
+        const queuebtn = item.querySelector(".epqueue");
+        if (queuebtn) return;
+        this.getEpCount(results[title].url, (eps) => {
+          this.displayEps(item, title, results[title].url, eps);
+        });
+      }
+      item.innerHTML = `
+        <img src=${results[title].poster} style="width: 100%; height: 100%"><br>
+        <h4>${title}</h4><br>
+      `;
+      sellist.append(item);
+    });
+  }
+
+  resetSearch() {
+    const searchoverlay = document.querySelector(".searchol");
+    const seldiv = searchoverlay.querySelector(".select");
+    const sellist = seldiv.querySelector("ul");
+    if (sellist) sellist.remove();
+    const searchinput = searchoverlay.querySelector("input");
+    searchinput.value = "";
+    this.hideSearch();
+  }
+
+  displayEps(item, title, url, count) {
+    const epselect = this.nodeFromString(`
+      <select name="episodes" multiple></select>
+    `);
+    const submitbtn = this.nodeFromString(`
+      <button class="epqueue" type="submit">Queue Eps</button>
+    `);
+    if (count > 1) {
+      submitbtn.onclick = () => {
+        this.resetSearch();
+        const checked = epselect.querySelectorAll(":checked");
+        const selected = [...checked].map(option => option.value);
+        this.getEps(url, selected, (episodes) => {
+          selected.forEach((epNo) => {
+            this.queueEp(episodes[epNo]);
+          });
+        });
+      };
+      for (var i=0; i<count; i++) {
+        const option = document.createElement("option");
+        option.value = i+1;
+        option.innerHTML = i+1;
+        epselect.append(option);
+      }
+      item.append(epselect);
+    } else {
+      submitbtn.onclick = () => {
+        this.resetSearch();
+        this.getEps(url, [1], (episodes) => {
+          this.queueEp(episodes[1]);
+        });
+      };
+    }
+    item.append(submitbtn);
+  }
+
+  queueEp(episode) {
+    this.api.addVideoItem(episode.video, true, true);
+  }
+
+  doSearch(title, callback) {
     axios.get(SEARCHPATH, {params: {
-      title: searchinput.value
+      title: title
     }})
     .then(function (response) {
-      console.log(response.data)
-      //TODO display these results
+      typeof callback === 'function' && callback(response.data);
+      return response.data;
+    });
+  }
+
+  getEps(url, episodes, callback) {
+    var params = {url: url};
+    if (Array.isArray(episodes)) {
+      params["ep"] = episodes.join();
+    }
+    axios.get(GETEPURLPATH, {params: params})
+    .then(function (response) {
+      typeof callback === 'function' && callback(response.data);
+      return response.data;
+    });
+  }
+
+  getEpCount(url, callback) {
+    axios.get(GETEPCOUNTPATH, {params: {
+      url: url
+    }})
+    .then(function (response) {
+      typeof callback === 'function' && callback(response.data.episodes);
+      return response.data.episodes;
     });
   }
 

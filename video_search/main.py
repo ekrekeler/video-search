@@ -6,7 +6,7 @@ from urllib.parse import urlparse, parse_qsl
 from cachetools import TTLCache
 from anime_downloader.config import Config
 from anime_downloader.sites import get_anime_class
-from anime_downloader.util import parse_ep_str, print_episodeurl
+from anime_downloader.util import parse_episode_range, parse_ep_str, print_episodeurl
 
 from flask import Flask, request
 app = Flask(__name__)
@@ -49,6 +49,24 @@ def search():
     else:
         return 'Not a valid handler type.', 400
 
+@app.route('/get_epcount', methods=['GET'])
+def get_epcount():
+    # Counts the number of episodes in an anime without fetching video urls
+    handler = request.args.get('type')
+    if not handler:
+        handler = 'anime-dl'
+    page_url = request.args['url']
+    epcount = {}
+
+    if handler == 'anime-dl':
+        anime = ANIME_SITE(page_url)
+        epcount['episodes'] = len(anime)
+
+    else:
+        return 'Not a valid handler type.', 400
+
+    return epcount
+
 @app.route('/get_video', methods=['GET'])
 def get_video():
     # Retrieves video URL from page URL
@@ -80,7 +98,7 @@ def get_video():
             r = requests.head(video_url, headers=headers, cookies=cookies,
                 allow_redirects=True)
             video_url = r.url
-            video_list[f'{anime.title} - Ep {episode.ep_no}'] = {
+            video_list[str(episode.ep_no)] = {
                 'title': anime.title,
                 'video': video_url,
                 'episode': episode.ep_no,
