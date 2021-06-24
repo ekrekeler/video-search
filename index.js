@@ -41,7 +41,14 @@ synctube.videosearch = class {
     closebutton.onclick = () => {
       this.hideSearch();
     }
+    const searchinput = overlay.querySelector("input");
     const submitbutton = document.querySelector("#submitsrch");
+    searchinput.addEventListener("keyup", (event) => {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        submitbutton.click();
+      }
+    });
     submitbutton.onclick = () => {
       const searchinput = overlay.querySelector("input");
       if (!searchinput) return;
