@@ -139,7 +139,7 @@ synctube.videosearch = class {
         this.getEps(url, selected, (episodes) => {
           var epindex = 0;
           const loopCallback = () => {
-            this.queueEp(episodes[selected[epindex]], () => {
+            this.queueEp(episodes[selected[epindex]], `${PROXYPATH}?url=`, () => {
               epindex++;
               if (epindex < selected.length) {
                 loopCallback();
@@ -160,15 +160,15 @@ synctube.videosearch = class {
       submitbtn.onclick = () => {
         this.resetSearch();
         this.getEps(url, [1], (episodes) => {
-          this.queueEp(episodes[1]);
+          this.queueEp(episodes[1], `${PROXYPATH}?url=`);
         });
       };
     }
     item.append(submitbtn);
   }
 
-  queueEp(episode, callback) {
-    this.api.addVideoItem(episode.video, true, true, callback);
+  queueEp(episode, proxy="", callback) {
+    this.api.addVideoItem(proxy + episode.video, true, true, callback);
   }
 
   doSearch(title, callback) {
